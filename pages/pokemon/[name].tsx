@@ -1,17 +1,14 @@
-import { Col, Container, Row } from 'react-bootstrap'
-import { GetStaticProps, GetStaticPaths } from 'next'
-
-import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link'
-
-import { Pokemon as PokemonType } from 'models'
-
-import pokemon from 'pokemon.json'
+import LinkTo from 'components/LinkTo';
+import { Pokemon as PokemonType } from 'models';
+import { GetStaticPaths, GetStaticProps } from 'next';
+import Head from 'next/head';
+import Image from 'next/image';
+import pokemon from 'pokemon.json';
+import { Col, Container, Row } from 'react-bootstrap';
 
 type Props = {
-  data: PokemonType
-}
+  data: PokemonType;
+};
 
 function Pokemon({ data }: Props) {
   return (
@@ -55,11 +52,9 @@ function Pokemon({ data }: Props) {
             </>
           ) : null}
 
-          <Link href="/">
-            <a>
-              <h3>Return to Home</h3>
-            </a>
-          </Link>
+          <LinkTo href="/">
+            <h3>Return to Home</h3>
+          </LinkTo>
         </Container>
       </div>
 
@@ -69,20 +64,22 @@ function Pokemon({ data }: Props) {
         }
       `}</style>
     </>
-  )
+  );
 }
 
 export const getStaticPaths: GetStaticPaths = async () => ({
   paths: pokemon.map(({ name: { english } }) => ({
-    params: { name: english }
+    params: { name: english },
   })),
-  fallback: false
-})
+  fallback: false,
+});
 
 export const getStaticProps: GetStaticProps = async ({ params }) => ({
   props: {
-    data: pokemon.filter(({ name: { english } }) => english === params?.name)[0]
-  }
-})
+    data: pokemon.filter(
+      ({ name: { english } }) => english === params?.name,
+    )[0],
+  },
+});
 
-export default Pokemon
+export default Pokemon;
