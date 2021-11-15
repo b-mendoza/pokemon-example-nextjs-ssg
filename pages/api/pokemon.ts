@@ -1,33 +1,33 @@
 import { Pokemon } from 'typings';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-import pokemon from 'pokemon.json';
+import pokemonList from 'pokemon.json';
 
-type Data = Pokemon;
+type Data = Pokemon | { message: string };
 
 export default function getPokemon(
   req: NextApiRequest,
   res: NextApiResponse<Data>,
 ) {
   if (!req.query.name) {
-    res.statusCode = 400;
-
-    res.end('Must Have a Name');
+    res.status(400).json({ message: '`name` param was not provided' });
 
     return;
   }
 
-  const found = pokemon.filter(
-    ({ name: { english } }) => english === req.query.name,
-  );
+  const typedPokemonList = pokemonList as Pokemon[];
 
-  if (found.length) res.setHeader('Content-Type', 'application/json');
+  const pokemon = typedPokemonList.find((pokemon) => {
+    const { name } = pokemon;
 
-  res.statusCode = found.length ? 200 : 404;
+    return name.english === req.query.name;
+  });
 
-  res.end(
-    found.length
-      ? JSON.stringify(found[0])
-      : `Pokemon ${req.query.name as string} - Not Found`,
-  );
+  res
+    .status(pokemon ? 200 : 404)
+    .json(
+      pokemon
+        ? pokemon
+        : { message: `Pokemon ${req.query.name as string} - Not Found` },
+    );
 }
