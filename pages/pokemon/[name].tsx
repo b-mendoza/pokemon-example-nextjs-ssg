@@ -1,85 +1,128 @@
-import LinkTo from 'components/LinkTo';
-import { Pokemon as PokemonType } from 'models';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import pokemon from 'pokemon.json';
+import Link from 'next/link';
 import { Col, Container, Row } from 'react-bootstrap';
 
-type Props = {
-  data: PokemonType;
+import pokemonList from 'pokemon.json';
+
+import { Pokemon } from 'typings';
+
+type PokemonViewProps = {
+  data: Pokemon | null;
 };
 
-function Pokemon({ data }: Props) {
+const formatPokemonName = (name: string) =>
+  name.toLowerCase().replace(' ', '-');
+
+function PokemonView({ data }: PokemonViewProps) {
+  const { base, name } = data ?? {};
+
   return (
     <>
-      <div>
+      <main>
         <Head>
-          <title>{(data ? data.name.english : null) || 'Pokemon'}</title>
+          <title>{name?.english || 'Pokemon'}</title>
         </Head>
 
         <Container>
           {data ? (
             <>
-              <Row>
-                <Col xs={6}>
-                  <h1>{data.name.english}</h1>
-
-                  <br />
-
-                  {Object.entries(data.base).map(([key, value]) => (
-                    <Row key={key}>
-                      <Col xs={3}>
-                        <p>{key}</p>
-                      </Col>
-                      <Col xs={4}>
-                        <h5>{value}</h5>
-                      </Col>
-                    </Row>
-                  ))}
-                </Col>
-
-                <Col xs={6}>
-                  <Image
-                    src={`/pokemon/${data.name.english
-                      .toLowerCase()
-                      .replace(' ', '-')}.jpg`}
-                    height={350}
-                    width={350}
-                  />
-                </Col>
+              <Row className="mb-3">
+                <h1>{name?.english}</h1>
               </Row>
+
+              <Row className="mb-3">
+                {base
+                  ? Object.entries(base).map(([propertie, value], index) => (
+                      <Col
+                        className={`d-grid gap-4`}
+                        key={index}
+                        md={4}
+                        sm={6}
+                        xs={12}
+                      >
+                        <div className="d-flex justify-content-between">
+                          <p>{propertie}</p>
+
+                          <h5>{value}</h5>
+                        </div>
+                      </Col>
+                    ))
+                  : null}
+              </Row>
+
+              {name?.english ? (
+                <section className="imageContainer">
+                  <Image
+                    alt={name.english}
+                    height={248}
+                    layout="responsive"
+                    src={`/pokemon/${formatPokemonName(name.english)}.jpg`}
+                    title={name.english}
+                    width={248}
+                  />
+                </section>
+              ) : null}
             </>
           ) : null}
 
-          <LinkTo href="/">
-            <h3>Return to Home</h3>
-          </LinkTo>
+          <Link href="/">
+            <a>
+              <h4>Back to Home</h4>
+            </a>
+          </Link>
         </Container>
-      </div>
+      </main>
 
       <style jsx>{`
-        div {
-          padding: 3rem;
+        main {
+          padding: 1.5rem;
+        }
+
+        section.imageContainer {
+          margin: 0 auto;
+
+          max-width: 40rem;
         }
       `}</style>
     </>
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => ({
-  paths: pokemon.map(({ name: { english } }) => ({
-    params: { name: english },
-  })),
+type RouteParams = {
+  name: string;
+};
+
+export const getStaticPaths: GetStaticPaths<RouteParams> = () => ({
   fallback: false,
+  paths: pokemonList.map((pokemon) => {
+    const { name } = pokemon;
+
+    return {
+      params: { name: name.english },
+    };
+  }),
 });
 
-export const getStaticProps: GetStaticProps = async ({ params }) => ({
-  props: {
-    data: pokemon.filter(
-      ({ name: { english } }) => english === params?.name,
-    )[0],
-  },
-});
+export const getStaticProps: GetStaticProps<PokemonViewProps, RouteParams> = (
+  context,
+) => {
+  const { params } = context;
 
-export default Pokemon;
+  const typedPokemonList = pokemonList as Pokemon[];
+
+  const pokemon = typedPokemonList.find((pokemon) => {
+    const { name } = pokemon;
+
+    return name.english === params?.name;
+  });
+
+  if (!pokemon) return { props: { data: null } };
+
+  return {
+    props: { data: pokemon },
+  };
+};
+
+export default PokemonView;
