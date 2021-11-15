@@ -1,20 +1,25 @@
 import axios from 'axios';
-import LinkTo from 'components/LinkTo';
-import { Pokemon } from 'models';
 import Head from 'next/head';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
-import { Card, CardColumns, Container, FormControl } from 'react-bootstrap';
+import { Card, Col, Container, FormControl, Row } from 'react-bootstrap';
 import { useQuery } from 'react-query';
 
-type FormControlElement =
-  | HTMLInputElement
-  | HTMLSelectElement
-  | HTMLTextAreaElement;
+import { Pokemon } from 'typings';
+
+type FormControlElement = HTMLInputElement | HTMLTextAreaElement;
+
+type APIResponse = {
+  pokemonList: Pokemon[];
+};
 
 const getPokemon = async (_: string, query: string) => {
-  const { data } = await axios.get<Pokemon[]>(`/api/search?q=${escape(query)}`);
+  const { data } = await axios.get<APIResponse>(
+    `/api/search?q=${encodeURI(query)}`,
+  );
 
-  return data.map(pokemon => ({
+  return data.pokemonList.map((pokemon) => ({
     ...pokemon,
     image: `/pokemon/${pokemon.name.english
       .toLowerCase()
@@ -31,6 +36,7 @@ function Home() {
 
   const handleSearch = (event: React.ChangeEvent<FormControlElement>) => {
     const input = event.target as HTMLInputElement;
+
     const inputValue = input.value;
 
     setQuery(inputValue);
@@ -38,43 +44,61 @@ function Home() {
 
   return (
     <>
-      <div>
+      <main>
         <Head>
           <title>Pokemon</title>
-          <link rel="icon" href="/favicon.ico" />
         </Head>
 
-        <Container>
+        <Container className="p-0">
           <FormControl
             aria-label="Search"
+            className="mb-4"
             placeholder="Search"
             value={query}
             onChange={handleSearch}
           />
 
-          <br />
-
           {data ? (
-            <CardColumns>
-              {data.map(({ id, name, type, image }) => (
-                <LinkTo key={id} href={`/pokemon/${name.english}`}>
-                  <Card>
-                    <Card.Img variant="top" src={image} />
-                    <Card.Body>
-                      <Card.Title>{name.english}</Card.Title>
-                      <Card.Subtitle>{type.join(', ')}</Card.Subtitle>
-                    </Card.Body>
-                  </Card>
-                </LinkTo>
-              ))}
-            </CardColumns>
+            <Row xs={1} md={2} lg={3} xl={4}>
+              {data.map((pokemon) => {
+                const { id, name, type, image } = pokemon;
+
+                return (
+                  <Col key={id} className="mb-4">
+                    <Link
+                      href={`/pokemon/${encodeURI(name.english)}`}
+                      prefetch={false}
+                    >
+                      <a>
+                        <Card>
+                          <Image
+                            alt={name.english}
+                            height={270}
+                            layout="responsive"
+                            priority
+                            src={image}
+                            title={name.english}
+                            width={270}
+                          />
+
+                          <Card.Body>
+                            <Card.Title>{name.english}</Card.Title>
+                            <Card.Subtitle>{type.join(', ')}</Card.Subtitle>
+                          </Card.Body>
+                        </Card>
+                      </a>
+                    </Link>
+                  </Col>
+                );
+              })}
+            </Row>
           ) : null}
         </Container>
-      </div>
+      </main>
 
       <style jsx>{`
-        div {
-          padding: 3rem;
+        main {
+          padding: 1.5rem;
         }
       `}</style>
     </>
