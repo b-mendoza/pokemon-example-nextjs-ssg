@@ -1,10 +1,14 @@
-import { Pokemon } from 'models';
+import { Pokemon } from 'typings';
 import { NextApiRequest, NextApiResponse } from 'next';
+
 import pokemon from 'pokemon.json';
 
 type Data = Pokemon[];
 
-export default (req: NextApiRequest, res: NextApiResponse<Data>) => {
+export default function searchPokemon(
+  req: NextApiRequest,
+  res: NextApiResponse<Data>,
+) {
   const filter = req.query.q ? new RegExp(req.query.q as string, 'i') : /.*/;
 
   res.statusCode = 200;
@@ -18,4 +22,4 @@ export default (req: NextApiRequest, res: NextApiResponse<Data>) => {
         .slice(0, 10),
     ),
   );
-};
+}
