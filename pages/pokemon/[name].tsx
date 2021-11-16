@@ -36,7 +36,7 @@ function PokemonView({ data }: PokemonViewProps) {
                 {base
                   ? Object.entries(base).map(([propertie, value], index) => (
                       <Col
-                        className={`d-grid gap-4`}
+                        className="d-grid gap-4"
                         key={index}
                         md={4}
                         sm={6}
@@ -45,7 +45,9 @@ function PokemonView({ data }: PokemonViewProps) {
                         <div className="d-flex justify-content-between">
                           <p>{propertie}</p>
 
-                          <h5>{value}</h5>
+                          <p>
+                            <strong>{value}</strong>
+                          </p>
                         </div>
                       </Col>
                     ))
