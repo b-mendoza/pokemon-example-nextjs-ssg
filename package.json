@@ -4,9 +4,12 @@
   "version": "0.1.0",
   "scripts": {
     "build": "next build",
+    "ci-check": "npm run type-check && npm run lint:write",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "lint:write": "next lint --cache --fix",
+    "start": "next start",
+    "type-check": "tsc --project ./tsconfig.json --pretty"
   },
   "dependencies": {
     "bootstrap": "5.1.3",
