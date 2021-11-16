@@ -31,7 +31,7 @@ function Home() {
 
         await mutate(data, false);
       } catch {
-        console.log('__ERROR__', 'Fetchin more Pokemons');
+        console.error('__ERROR__', 'Fetching more Pokemons');
       }
     };
 
