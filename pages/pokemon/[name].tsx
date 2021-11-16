@@ -3,11 +3,11 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Container } from 'react-bootstrap';
 
+import PokemonData from 'components/PokemonData';
+
 import pokemonList from 'pokemon.json';
 
 import { Pokemon } from 'typings/pokemon';
-
-import PokemonData from 'components/PokemonData';
 
 type PokemonViewProps = {
   data: Pokemon | null;
