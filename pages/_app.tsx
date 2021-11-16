@@ -14,7 +14,7 @@ function __App({ Component, pageProps }: CustomAppProps) {
   const { fallback } = pageProps;
 
   return (
-    <SWRConfig value={{ fetcher, fallback }}>
+    <SWRConfig value={{ fallback, fetcher, revalidateOnFocus: false }}>
       <SSRProvider>
         <Component {...pageProps} />
       </SSRProvider>
