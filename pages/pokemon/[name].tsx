@@ -118,10 +118,8 @@ export const getStaticProps: GetStaticProps<PokemonViewProps, RouteParams> = (
     return name.english === params?.name;
   });
 
-  if (!pokemon) return { props: { data: null } };
-
   return {
-    props: { data: pokemon },
+    props: { data: pokemon ?? null },
   };
 };
 
