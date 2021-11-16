@@ -17,7 +17,11 @@ export default function searchPokemon(
 
   res.status(200).json({
     pokemonList: typedPokemonList
-      .filter(({ name: { english } }) => filter.exec(english))
+      .filter((pokemon) => {
+        const { name } = pokemon;
+
+        return filter.exec(name.english);
+      })
       .slice(0, 10),
   });
 }
