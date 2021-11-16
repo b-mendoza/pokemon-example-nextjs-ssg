@@ -8,12 +8,11 @@ import pokemonList from 'pokemon.json';
 
 import { Pokemon } from 'typings/pokemon';
 
+import { formatPokemonName } from 'utils/formatPokemonName';
+
 type PokemonViewProps = {
   data: Pokemon | null;
 };
-
-const formatPokemonName = (name: string) =>
-  name.toLowerCase().replace(' ', '-');
 
 function PokemonView({ data }: PokemonViewProps) {
   const { base, name } = data ?? {};
