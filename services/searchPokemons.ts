@@ -2,7 +2,7 @@ import { SearchPokemonsAPIResponse } from 'typings/api';
 
 export const searchPokemons = async (searchQuery = '') => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_ABSOLUTE_SERVER_URL}/api/search?q=${encodeURI(
+    `${process.env.NEXT_PUBLIC_SERVER_URL}/api/search?q=${encodeURI(
       searchQuery,
     )}`,
   );
