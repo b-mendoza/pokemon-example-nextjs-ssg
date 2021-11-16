@@ -60,6 +60,7 @@ function PokemonView({ data }: PokemonViewProps) {
                     alt={name.english}
                     height={248}
                     layout="responsive"
+                    priority
                     src={`/pokemon/${formatPokemonName(name.english)}.jpg`}
                     title={name.english}
                     width={248}
@@ -69,11 +70,15 @@ function PokemonView({ data }: PokemonViewProps) {
             </>
           ) : null}
 
-          <Link href="/">
-            <a>
-              <h4>Back to Home</h4>
-            </a>
-          </Link>
+          <footer>
+            <Link href="/">
+              <a>
+                <p>
+                  <strong>Back to Home</strong>
+                </p>
+              </a>
+            </Link>
+          </footer>
         </Container>
       </main>
 
