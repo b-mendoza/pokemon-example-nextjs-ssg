@@ -1,67 +1,56 @@
-import axios from 'axios';
+// import { GetStaticProps } from 'next';
+
 import Head from 'next/head';
-import Image from 'next/image';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Card, Col, Container, FormControl, Row } from 'react-bootstrap';
-import { useQuery } from 'react-query';
+import { Col, Container, FormControl, Row } from 'react-bootstrap';
+import useSWR from 'swr';
 
-import { Pokemon } from 'typings';
+import PokemonCard from 'components/PokemonCard';
 
-type FormControlElement = HTMLInputElement | HTMLTextAreaElement;
+import { Pokemon } from 'typings/pokemon';
+import { CustomPageProps } from 'typings/shared';
+import { GetStaticProps } from 'next';
+
+// import { CustomPageProps } from 'typings/shared';
 
 type APIResponse = {
   pokemonList: Pokemon[];
 };
 
-const getPokemon = async (_: string, query: string) => {
-  const { data } = await axios.get<APIResponse>(
-    `/api/search?q=${encodeURI(query)}`,
-  );
-
-  return data.pokemonList.map((pokemon) => ({
-    ...pokemon,
-    image: `/pokemon/${pokemon.name.english
-      .toLowerCase()
-      .replace(' ', '-')}.jpg`,
-  }));
-};
+const initialURLRequest = `/api/search?q=${encodeURI('')}`;
 
 function Home() {
-  const [query, setQuery] = useState('');
+  const { data: response } = useSWR<APIResponse>(initialURLRequest);
 
-  const { data } = useQuery(['searchQuery', query], () =>
-    getPokemon('searchQuery', query),
-  );
+  const pokemonList = response?.pokemonList;
 
-  const handleSearch = (event: React.ChangeEvent<FormControlElement>) => {
-    const input = event.target as HTMLInputElement;
+  // const handleSearch: React.ComponentProps<typeof FormControl>['onChange'] = (
+  //   event,
+  // ) => {
+  //   const input = event.target as HTMLInputElement;
 
-    const inputValue = input.value;
-
-    setQuery(inputValue);
-  };
+  //   const inputValue = input.value;
+  // };
 
   return (
     <>
-      <main>
-        <Head>
-          <title>Pokemon</title>
-        </Head>
+      <Head>
+        <title>Pokemon</title>
+      </Head>
 
+      <main>
         <Container className="p-0">
           <FormControl
             aria-label="Search"
             className="mb-4"
             placeholder="Search"
-            value={query}
-            onChange={handleSearch}
+            // onChange={handleSearch}
           />
 
-          {data ? (
+          {pokemonList ? (
             <Row xs={1} md={2} lg={3} xl={4}>
-              {data.map((pokemon) => {
-                const { id, name, type, image } = pokemon;
+              {pokemonList.map((pokemon) => {
+                const { id, name } = pokemon;
 
                 return (
                   <Col key={id} className="mb-4">
@@ -70,22 +59,7 @@ function Home() {
                       prefetch={false}
                     >
                       <a>
-                        <Card>
-                          <Image
-                            alt={name.english}
-                            height={270}
-                            layout="responsive"
-                            priority
-                            src={image}
-                            title={name.english}
-                            width={270}
-                          />
-
-                          <Card.Body>
-                            <Card.Title>{name.english}</Card.Title>
-                            <Card.Subtitle>{type.join(', ')}</Card.Subtitle>
-                          </Card.Body>
-                        </Card>
+                        <PokemonCard {...pokemon} />
                       </a>
                     </Link>
                   </Col>
@@ -104,5 +78,27 @@ function Home() {
     </>
   );
 }
+
+export const getStaticProps: GetStaticProps<CustomPageProps> = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_ABSOLUTE_SERVER_URL}${initialURLRequest}`,
+    );
+
+    const data = (await response.json()) as Promise<APIResponse>;
+
+    return {
+      props: {
+        fallback: { [`${initialURLRequest}`]: data },
+      },
+    };
+  } catch {
+    return {
+      props: {
+        fallback: { [`${initialURLRequest}`]: null },
+      },
+    };
+  }
+};
 
 export default Home;
