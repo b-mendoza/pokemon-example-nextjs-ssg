@@ -20,11 +20,11 @@ function PokemonView({ data }: PokemonViewProps) {
 
   return (
     <>
-      <main>
-        <Head>
-          <title>{name?.english || 'Pokemon'}</title>
-        </Head>
+      <Head>
+        <title>{name?.english || 'Pokemon'}</title>
+      </Head>
 
+      <main>
         <Container>
           {data ? (
             <>
