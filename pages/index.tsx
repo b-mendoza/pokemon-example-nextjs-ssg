@@ -1,5 +1,4 @@
-// import { GetStaticProps } from 'next';
-
+import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 import { Col, Container, FormControl, Row } from 'react-bootstrap';
@@ -7,30 +6,34 @@ import useSWR from 'swr';
 
 import PokemonCard from 'components/PokemonCard';
 
-import { Pokemon } from 'typings/pokemon';
+import { searchPokemons } from 'services/searchPokemons';
+
+import { SearchPokemonsAPIResponse } from 'typings/api';
 import { CustomPageProps } from 'typings/shared';
-import { GetStaticProps } from 'next';
-
-// import { CustomPageProps } from 'typings/shared';
-
-type APIResponse = {
-  pokemonList: Pokemon[];
-};
 
 const initialURLRequest = `/api/search?q=${encodeURI('')}`;
 
 function Home() {
-  const { data: response } = useSWR<APIResponse>(initialURLRequest);
+  const { data: response, mutate } = useSWR<SearchPokemonsAPIResponse, Error>(
+    initialURLRequest,
+  );
 
   const pokemonList = response?.pokemonList;
 
-  // const handleSearch: React.ComponentProps<typeof FormControl>['onChange'] = (
-  //   event,
-  // ) => {
-  //   const input = event.target as HTMLInputElement;
+  const handleSearch: React.ComponentProps<typeof FormControl>['onChange'] =
+    async (event) => {
+      const input = event.target as HTMLInputElement;
 
-  //   const inputValue = input.value;
-  // };
+      const inputValue = input.value;
+
+      try {
+        const data = await searchPokemons(inputValue);
+
+        await mutate(data, false);
+      } catch {
+        console.log('__ERROR__', 'Fetchin more Pokemons');
+      }
+    };
 
   return (
     <>
@@ -44,7 +47,7 @@ function Home() {
             aria-label="Search"
             className="mb-4"
             placeholder="Search"
-            // onChange={handleSearch}
+            onChange={handleSearch}
           />
 
           {pokemonList ? (
@@ -81,11 +84,7 @@ function Home() {
 
 export const getStaticProps: GetStaticProps<CustomPageProps> = async () => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_ABSOLUTE_SERVER_URL}${initialURLRequest}`,
-    );
-
-    const data = (await response.json()) as Promise<APIResponse>;
+    const data = await searchPokemons();
 
     return {
       props: {
