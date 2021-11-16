@@ -1,6 +1,8 @@
+import debounce from 'lodash.debounce';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
+import { useMemo } from 'react';
 import { Col, Container, FormControl, Row } from 'react-bootstrap';
 import useSWR from 'swr';
 
@@ -20,20 +22,25 @@ function Home() {
 
   const pokemonList = response?.pokemonList;
 
-  const handleSearch: React.ComponentProps<typeof FormControl>['onChange'] =
-    async (event) => {
-      const input = event.target as HTMLInputElement;
+  const debouncedHandleSearch = useMemo(
+    () =>
+      debounce<
+        NonNullable<React.ComponentProps<typeof FormControl>['onChange']>
+      >(async (event) => {
+        const input = event.target as HTMLInputElement;
 
-      const inputValue = input.value;
+        const inputValue = input.value;
 
-      try {
-        const data = await searchPokemons(inputValue);
+        try {
+          const data = await searchPokemons(inputValue);
 
-        await mutate(data, false);
-      } catch {
-        console.error('__ERROR__', 'Fetching more Pokemons');
-      }
-    };
+          await mutate(data, false);
+        } catch {
+          console.error('__ERROR__', 'Fetching more Pokemons');
+        }
+      }, 500),
+    [mutate],
+  );
 
   return (
     <>
@@ -47,7 +54,7 @@ function Home() {
             aria-label="Search"
             className="mb-4"
             placeholder="Search"
-            onChange={handleSearch}
+            onChange={debouncedHandleSearch}
           />
 
           {pokemonList ? (
