@@ -57,7 +57,7 @@ function Home() {
             onChange={debouncedHandleSearch}
           />
 
-          {pokemonList ? (
+          {pokemonList?.length ? (
             <Row xs={1} md={2} lg={3} xl={4}>
               {pokemonList.map((pokemon) => {
                 const { id, name } = pokemon;
