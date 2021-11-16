@@ -1,7 +1,8 @@
-import { Pokemon } from 'typings';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 import pokemonList from 'pokemon.json';
+
+import { Pokemon } from 'typings/pokemon';
 
 type Data = Pokemon | { message: string };
 

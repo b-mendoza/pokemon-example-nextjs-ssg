@@ -6,7 +6,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 
 import pokemonList from 'pokemon.json';
 
-import { Pokemon } from 'typings';
+import { Pokemon } from 'typings/pokemon';
 
 type PokemonViewProps = {
   data: Pokemon | null;
